@@ -1,0 +1,27 @@
+[project]
+name = "lsystem-visualizer"
+version = "0.1.0"
+description = "3D stochastic L-system plant visualizer"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "trimesh",
+    "pyglet<2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

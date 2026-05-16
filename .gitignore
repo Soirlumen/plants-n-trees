@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+.ruff_cache/
+*.pyc
+
+exports/
+*.obj
+*.glb
