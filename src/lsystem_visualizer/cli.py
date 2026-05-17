@@ -38,9 +38,7 @@ def main() -> None:
     args = parse_args()
 
     preset_iterations, axiom, rules = PRESETS[args.preset]
-    iterations = (
-        args.iterations if args.iterations is not None else preset_iterations
-    )
+    iterations = args.iterations if args.iterations is not None else preset_iterations
 
     tree_mesh = build_lsystem_mesh(
         iterations=iterations,

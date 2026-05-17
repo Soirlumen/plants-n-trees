@@ -1,0 +1,1 @@
+python -m src.lsystem_visualizer.cli --preset dense-stochastic-tree --iterations 6 --angle 27 --shrink-length 0.955 --shrink-radius 0.94 --start-length 0.36 --start-radius 0.11 --leaf-length 0.4 --leaf-width 0.13 --leaf-fork-angle 35 --stochasticity 2 --seed 45 --leaf-color leaf_crimson_pink --show

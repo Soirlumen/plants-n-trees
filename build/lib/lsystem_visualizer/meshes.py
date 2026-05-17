@@ -49,6 +49,7 @@ def create_diamond_leaf(
 
     return apply_color(leaf, color_name)
 
+
 def create_needle_cluster(
     position: np.ndarray,
     branch_direction: np.ndarray,
@@ -87,6 +88,7 @@ def create_needle_cluster(
         meshes.append(needle)
 
     return trimesh.util.concatenate(meshes)
+
 
 def create_leaf_pair(
     position: np.ndarray,
@@ -131,4 +133,3 @@ def create_leaf_pair(
     )
 
     return trimesh.util.concatenate([leaf_1, leaf_2])
-

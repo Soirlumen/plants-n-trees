@@ -49,6 +49,7 @@ def create_diamond_leaf(
 
     return apply_color(leaf, color_name)
 
+
 def create_leaf_pair(
     position: np.ndarray,
     branch_direction: np.ndarray,
@@ -58,12 +59,14 @@ def create_leaf_pair(
     color_name: str = "leaf",
 ) -> trimesh.Trimesh:
     branch_direction = normalize(branch_direction)
-    
+
     # Pomocný kolmý vektor získáme cross productem, abychom nepotřebovali celou bázi
     helper = np.array([0.0, 0.0, 1.0])
     if abs(np.dot(branch_direction, helper)) > 0.95:
         helper = np.array([1.0, 0.0, 0.0])
-    up = normalize(np.cross(normalize(np.cross(branch_direction, helper)), branch_direction))
+    up = normalize(
+        np.cross(normalize(np.cross(branch_direction, helper)), branch_direction)
+    )
 
     fork_angle_rad = np.radians(fork_angle_degrees)
 

@@ -35,6 +35,7 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
+
 def main() -> None:
     args = parse_args()
 
@@ -67,6 +68,7 @@ def main() -> None:
     if args.show:
         scene = trimesh.Scene([tree_mesh])
         scene.show()
+
 
 if __name__ == "__main__":
     main()

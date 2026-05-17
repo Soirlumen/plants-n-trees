@@ -128,4 +128,3 @@ def build_lsystem_mesh(
         raise ValueError(msg)
 
     return trimesh.util.concatenate(meshes)
-

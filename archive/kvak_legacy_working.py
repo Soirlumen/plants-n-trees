@@ -5,51 +5,53 @@ import trimesh
 from trimesh.transformations import rotation_matrix
 
 
-def do_the_sentence(iterations:int,axiom:str,rules:dict)->str:
-     result=axiom
-     for x in range(iterations):
-          pom=''
-          #print(result)
-          for y in result:
-               pom+=rules.get(y)
-               result=pom
-     return result
-trava = [4,
-         'X',
-         { 'F':'FF',
-           'X':'F-[[X]+X]+F[+FX]-X',
-           '[':'[',
-           ']':']',
-           '+':'+',
-           '-':'-'
-}]
+def do_the_sentence(iterations: int, axiom: str, rules: dict) -> str:
+    result = axiom
+    for x in range(iterations):
+        pom = ""
+        # print(result)
+        for y in result:
+            pom += rules.get(y)
+            result = pom
+    return result
 
-strom=[3,
-     "X",
-     {
-    "X": "F[+X][-X][&X][^X]FX",  # X = větev (rekurze)
-    "F": "FF",                   # F = krok vpřed / segment
-           '[':'[',
-           ']':']',
-           '+':'+',
-           '-':'-',
-           "&":"&",
-           "^":"^",
-}]
+
+trava = [
+    4,
+    "X",
+    {"F": "FF", "X": "F-[[X]+X]+F[+FX]-X", "[": "[", "]": "]", "+": "+", "-": "-"},
+]
+
+strom = [
+    3,
+    "X",
+    {
+        "X": "F[+X][-X][&X][^X]FX",  # X = větev (rekurze)
+        "F": "FF",  # F = krok vpřed / segment
+        "[": "[",
+        "]": "]",
+        "+": "+",
+        "-": "-",
+        "&": "&",
+        "^": "^",
+    },
+]
 
 # === L-system ===
-strom=[4,
-     "X",
-     {
-    "X": "F[+X][-X][&X][^X]FX",
-    "F": "FF",
-           '[':'[',
-           ']':']',
-           '+':'+',
-           '-':'-',
-           "&":"&",
-           "^":"^",
-}]
+strom = [
+    4,
+    "X",
+    {
+        "X": "F[+X][-X][&X][^X]FX",
+        "F": "FF",
+        "[": "[",
+        "]": "]",
+        "+": "+",
+        "-": "-",
+        "&": "&",
+        "^": "^",
+    },
+]
 sentence = do_the_sentence(iterations=strom[0], axiom=strom[1], rules=strom[2])
 
 # === Parametry ===
@@ -71,15 +73,12 @@ meshes = []
 
 # === Interpretace L-systemu ===
 for char in sentence:
-
     if char == "F":
         start = state["pos"]
         end = start + state["dir"] * state["length"]
 
         cyl = trimesh.creation.cylinder(
-            radius=state["radius"],
-            segment=[start, end],
-            sections=5
+            radius=state["radius"], segment=[start, end], sections=5
         )
 
         meshes.append(cyl)

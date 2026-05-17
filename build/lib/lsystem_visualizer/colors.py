@@ -12,6 +12,7 @@ COLORS: dict[str, Color] = {
     "needle_light": (40, 130, 55, 255),
 }
 
+
 def apply_color(mesh: trimesh.Trimesh, color_name: str) -> trimesh.Trimesh:
     mesh.visual.face_colors = COLORS[color_name]
     return mesh

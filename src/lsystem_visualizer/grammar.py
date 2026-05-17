@@ -2,6 +2,7 @@ import numpy as np
 
 Rule = str | list[tuple[float, str]]
 
+
 def choose_replacement(rule: Rule, rng: np.random.Generator) -> str:
     if isinstance(rule, str):
         return rule
@@ -11,6 +12,7 @@ def choose_replacement(rule: Rule, rng: np.random.Generator) -> str:
 
     index = rng.choice(len(rule), p=weights)
     return rule[index][1]
+
 
 def expand_lsystem(
     iterations: int,

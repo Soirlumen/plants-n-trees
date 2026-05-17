@@ -1,4 +1,3 @@
-
 GRASS = (
     4,
     "X",
@@ -46,9 +45,30 @@ OAK_TREE = (
         ],
     },
 )
+
+DENSE_STOCHASTIC_TREE = (
+    6,
+    "FX",
+    {
+        "X": [
+            (0.28, "F[/+X][\\-X]F[&X]X"),
+            (0.24, "F[&/+X][&\\-X]FX"),
+            (0.20, "F[+X][-X][^X]FX"),
+            (0.16, "F[/+X][\\&X]F[^X]X"),
+            (0.12, "FFX"),
+        ],
+        "F": [
+            (0.72, "F"),
+            (0.28, "FF"),
+        ],
+    },
+)
+
+
 PRESETS = {
     "grass": GRASS,
     "tree": TREE,
     "stochastic-tree": STOCHASTIC_TREE,
     "oak-tree": OAK_TREE,
+    "dense-stochastic-tree": DENSE_STOCHASTIC_TREE,
 }
