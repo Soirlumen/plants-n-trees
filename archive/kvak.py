@@ -1,5 +1,6 @@
 import argparse
 import copy
+
 import numpy as np
 import trimesh
 from trimesh.transformations import rotation_matrix

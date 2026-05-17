@@ -2,7 +2,7 @@ import numpy as np
 import trimesh
 
 from .colors import apply_color
-from .geometry import normalize, rotate_vector
+from .geometry import get_perpendicular_basis, normalize, rotate_vector
 
 
 def create_diamond_leaf(
@@ -49,6 +49,45 @@ def create_diamond_leaf(
 
     return apply_color(leaf, color_name)
 
+def create_needle_cluster(
+    position: np.ndarray,
+    branch_direction: np.ndarray,
+    rng: np.random.Generator,
+    count: int = 8,
+    length: float = 0.28,
+    radius: float = 0.01,
+    spread: float = 0.75,
+    color_name: str = "needle",
+) -> trimesh.Trimesh:
+    branch_direction = normalize(branch_direction)
+    side, up = get_perpendicular_basis(branch_direction)
+
+    meshes = []
+    angle_offset = rng.uniform(0.0, 2.0 * np.pi)
+
+    for index in range(count):
+        angle = angle_offset + 2.0 * np.pi * index / count
+
+        radial_direction = np.cos(angle) * side + np.sin(angle) * up
+
+        needle_direction = normalize(
+            branch_direction * 0.65 + radial_direction * spread
+        )
+
+        start = position
+        end = position + needle_direction * length
+
+        needle = trimesh.creation.cylinder(
+            radius=radius,
+            segment=[start, end],
+            sections=4,
+        )
+
+        needle = apply_color(needle, color_name)
+        meshes.append(needle)
+
+    return trimesh.util.concatenate(meshes)
+
 def create_leaf_pair(
     position: np.ndarray,
     branch_direction: np.ndarray,
@@ -58,12 +97,7 @@ def create_leaf_pair(
     color_name: str = "leaf",
 ) -> trimesh.Trimesh:
     branch_direction = normalize(branch_direction)
-    
-    # Pomocný kolmý vektor získáme cross productem, abychom nepotřebovali celou bázi
-    helper = np.array([0.0, 0.0, 1.0])
-    if abs(np.dot(branch_direction, helper)) > 0.95:
-        helper = np.array([1.0, 0.0, 0.0])
-    up = normalize(np.cross(normalize(np.cross(branch_direction, helper)), branch_direction))
+    _, up = get_perpendicular_basis(branch_direction)
 
     fork_angle_rad = np.radians(fork_angle_degrees)
 
@@ -97,3 +131,4 @@ def create_leaf_pair(
     )
 
     return trimesh.util.concatenate([leaf_1, leaf_2])
+

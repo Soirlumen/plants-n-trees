@@ -1,6 +1,7 @@
+import copy
+
 import numpy as np
 import trimesh
-import copy
 from trimesh.transformations import rotation_matrix
 
 

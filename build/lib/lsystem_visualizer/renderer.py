@@ -6,7 +6,7 @@ import trimesh
 from .colors import apply_color
 from .geometry import rotate_vector, sample_angle_rad
 from .grammar import Rule, expand_lsystem
-from .meshes import create_leaf_pair
+from .meshes import create_leaf_pair, create_needle_cluster
 from .presets import TREE
 
 
@@ -27,19 +27,20 @@ def build_lsystem_mesh(
     leaf_width: float = 0.18,
     leaf_fork_angle: float = 40.0,
     leaf_color: str = "leaf",
+    needle_length: float = 0.28,
+    needle_radius: float = 0.01,
+    needle_count: int = 8,
+    needle_color: str = "needle",
 ) -> trimesh.Trimesh:
     rng = np.random.default_rng(seed)
 
-    active_rules: dict[str, Rule] = {}
     if rules is None:
-        active_rules = {k: v for k, v in TREE[2].items()}
-    else:
-        active_rules = rules
+        rules = TREE[2]
 
     sentence = expand_lsystem(
         iterations=iterations,
         axiom=axiom,
-        rules=active_rules,
+        rules=rules,
         rng=rng,
     )
 
@@ -70,7 +71,6 @@ def build_lsystem_mesh(
             state["length"] *= shrink_length
             state["radius"] *= shrink_radius
 
-        # --- ROTACE KOLEM OSY Z (Do stran) ---
         elif char == "+":
             angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
             state["dir"] = rotate_vector(state["dir"], angle_rad, [0, 0, 1])
@@ -79,7 +79,6 @@ def build_lsystem_mesh(
             angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
             state["dir"] = rotate_vector(state["dir"], -angle_rad, [0, 0, 1])
 
-        # --- ROTACE KOLEM OSY X (Dopředu / Dozadu) ---
         elif char == "&":
             angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
             state["dir"] = rotate_vector(state["dir"], angle_rad, [1, 0, 0])
@@ -88,16 +87,6 @@ def build_lsystem_mesh(
             angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
             state["dir"] = rotate_vector(state["dir"], -angle_rad, [1, 0, 0])
 
-        # --- ROLL / PODÉLNÁ ROTACE (Vlastní osa větve) ---
-        elif char == "/":
-            angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
-            state["dir"] = rotate_vector(state["dir"], angle_rad, state["dir"].tolist())
-
-        elif char == "\\":
-            angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
-            state["dir"] = rotate_vector(state["dir"], -angle_rad, state["dir"].tolist())
-
-        # --- UKLÁDÁNÍ STAVU ---
         elif char == "[":
             stack.append(copy.deepcopy(state))
 
@@ -105,9 +94,9 @@ def build_lsystem_mesh(
             if not stack:
                 msg = "L-system obsahuje ']', ale stack je prázdný."
                 raise ValueError(msg)
+
             state = stack.pop()
 
-        # --- LISTY ---
         elif char == "X":
             if leaves:
                 leaf_pair = create_leaf_pair(
@@ -119,12 +108,24 @@ def build_lsystem_mesh(
                     color_name=leaf_color,
                 )
                 meshes.append(leaf_pair)
+        elif char == "N":
+            needle_cluster = create_needle_cluster(
+                position=state["pos"],
+                branch_direction=state["dir"],
+                rng=rng,
+                count=needle_count,
+                length=needle_length,
+                radius=needle_radius,
+                color_name=needle_color,
+            )
+            meshes.append(needle_cluster)
 
-        elif char in {"A"}:
+        elif char in {"X", "A", "B"}:
             pass
 
     if not meshes:
-        msg = "L-system nevygeneroval žádné segmenty."
+        msg = "L-system nevygeneroval žádné segmenty. Chybí symbol 'F'?"
         raise ValueError(msg)
 
     return trimesh.util.concatenate(meshes)
+

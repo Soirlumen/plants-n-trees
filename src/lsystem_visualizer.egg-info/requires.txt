@@ -1,0 +1,6 @@
+numpy
+trimesh
+pyglet<2
+
+[dev]
+ruff
