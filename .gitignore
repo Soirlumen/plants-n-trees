@@ -11,6 +11,3 @@ build/
 dist/
 *.egg-info/
 src/*.egg-info/
-
-# Virtual environments
-.venv/
