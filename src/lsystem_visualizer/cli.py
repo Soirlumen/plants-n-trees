@@ -8,6 +8,7 @@ from .renderer import build_lsystem_mesh
 
 
 def parse_args() -> argparse.Namespace:
+    """Načte parametry z příkazové řádky"""
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -30,6 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--leaf-color", choices=COLORS.keys(), default="leaf")
     parser.add_argument("--start-length", type=float, default=0.9)
     parser.add_argument("--start-radius", type=float, default=0.1)
+    parser.add_argument("--branch-color", choices=COLORS.keys(), default="bark")
 
     return parser.parse_args()
 
@@ -37,6 +39,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
+    # Preset dodá základní gramatiku, uživatel může přepsat hlavně:
+    # počet iterací, barvy, mdoel, stochastiku...
     preset_iterations, axiom, rules = PRESETS[args.preset]
     iterations = args.iterations if args.iterations is not None else preset_iterations
 
@@ -56,6 +60,7 @@ def main() -> None:
         leaf_color=args.leaf_color,
         start_length=args.start_length,
         start_radius=args.start_radius,
+        branch_color=args.branch_color,
     )
 
     tree_mesh.export(args.output)

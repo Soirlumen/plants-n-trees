@@ -1,18 +1,26 @@
-[project]
 name = "lsystem-visualizer"
-version = "0.1.0"
 description = "3D stochastic L-system plant visualizer"
-requires-python = ">=3.11"
+
+[project]
+name = "pyth"
+version = "0.1.0"
+requires-python = ">=3.13"
 dependencies = [
-    "numpy",
-    "trimesh",
+    "numpy>=2.4.6",
     "pyglet<2",
+    "trimesh>=4.12.2",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "ruff",
+    "pytest>=9.0.3",
+    "ruff>=0.15.13",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
 
 [tool.ruff]
 line-length = 88

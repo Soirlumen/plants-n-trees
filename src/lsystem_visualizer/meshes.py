@@ -13,9 +13,11 @@ def create_diamond_leaf(
     width: float = 0.18,
     color_name: str = "leaf",
 ) -> trimesh.Trimesh:
+    """Vytvoří kosočtverec ze 4 bodů jako list."""
     direction = normalize(direction)
     width_axis = normalize(width_axis)
 
+    # List stavíme z bodu na větvi: základna, střed, špička a dva boční body.
     base = position
     center = position + direction * (length * 0.5)
     tip = position + direction * length
@@ -32,6 +34,7 @@ def create_diamond_leaf(
         ],
     )
 
+    # Dvě přední a dvě zadní plochy, aby byl list viditelný z obou stran
     faces = np.array(
         [
             [0, 1, 2],
@@ -58,9 +61,11 @@ def create_leaf_pair(
     fork_angle_degrees: float = 35.0,
     color_name: str = "leaf",
 ) -> trimesh.Trimesh:
+    """Vytvoří dvojici listů roztaženou do stran od směru větve pro víc živý nádech."""
     branch_direction = normalize(branch_direction)
 
-    # Pomocný kolmý vektor získáme cross productem, abychom nepotřebovali celou bázi
+    # Potřebujeme osu kolem které listy rozevřeme. Helper volíme tak,
+    # aby nebyl skoro rovnoběžný se směrem větve.
     helper = np.array([0.0, 0.0, 1.0])
     if abs(np.dot(branch_direction, helper)) > 0.95:
         helper = np.array([1.0, 0.0, 0.0])

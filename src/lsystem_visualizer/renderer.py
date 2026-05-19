@@ -10,6 +10,42 @@ from .meshes import create_leaf_pair
 from .presets import TREE
 
 
+def orthonormalize_turtle(state: dict) -> None:
+    """Srovná lokální osy želvy tak, aby zůstaly kolmé a jednotkové."""
+    heading = normalize(state["H"])
+
+    # Po hodně rotacích se kvůli zaokrouhlování může báze lehce rozhodit.
+    # Tady left očistíme o složku ve směru headingu a znovu dopočítáme up.
+    left = state["L"] - heading * float(np.dot(state["L"], heading))
+    left = normalize(left)
+
+    up = normalize(np.cross(heading, left))
+    left = normalize(np.cross(up, heading))
+
+    state["H"] = heading
+    state["L"] = left
+    state["U"] = up
+
+
+def rotate_turtle(
+    state: dict,
+    axis_key: str,
+    angle_rad: float,
+    rotated_keys: tuple[str, str],
+) -> None:
+    """Otočí vybrané osy želvy kolem jedné z jejích aktuálních os"""
+    axis = state[axis_key]
+
+    for key in rotated_keys:
+        state[key] = rotate_vector(
+            state[key],
+            angle_rad,
+            axis.tolist(),
+        )
+
+    orthonormalize_turtle(state)
+
+
 def build_lsystem_mesh(
     iterations: int = 4,
     angle_degrees: float = 27.0,
@@ -22,14 +58,17 @@ def build_lsystem_mesh(
     sections: int = 5,
     seed: int | None = None,
     stochasticity: float = 0.0,
+    branch_color: str = "bark",
     leaves: bool = True,
     leaf_length: float = 0.35,
     leaf_width: float = 0.18,
     leaf_fork_angle: float = 40.0,
     leaf_color: str = "leaf",
 ) -> trimesh.Trimesh:
+    """Převede L-system řetězec na jeden výsledný 3D mesh."""
     rng = np.random.default_rng(seed)
 
+    # Když volající nedodá vlastní pravidla, použije se jednoduchý výchozí strom
     active_rules: dict[str, Rule] = dict(TREE[2]) if rules is None else rules
 
     sentence = expand_lsystem(
@@ -39,6 +78,8 @@ def build_lsystem_mesh(
         rng=rng,
     )
 
+    # Turtle stav: pozice, tři lokální osy a aktuální rozměry větve.
+    # H = heading/směr dopředu, L = levá osa, U = osa nahoru.
     state = {
         "pos": np.array([0.0, 0.0, 0.0]),
         "H": np.array([0.0, 1.0, 0.0]),
@@ -56,12 +97,13 @@ def build_lsystem_mesh(
             start = state["pos"]
             end = start + state["H"] * state["length"]
 
+            # Každé F vytvoří jeden válcový segment ve směru aktuální želvy.
             cylinder = trimesh.creation.cylinder(
                 radius=state["radius"],
                 segment=[start, end],
                 sections=sections,
             )
-            cylinder = apply_color(cylinder, "bark")
+            cylinder = apply_color(cylinder, branch_color)
 
             meshes.append(cylinder)
             state["pos"] = end
@@ -95,8 +137,8 @@ def build_lsystem_mesh(
         elif char == "|":
             rotate_turtle(state, "U", np.pi, ("H", "L"))
 
-        # --- UKLÁDÁNÍ STAVU ---
         elif char == "[":
+            # Větvení: uložíme celý stav, aby se po dokončení větve dalo vrátit zpet.
             stack.append(copy.deepcopy(state))
 
         elif char == "]":
@@ -106,6 +148,7 @@ def build_lsystem_mesh(
             state = stack.pop()
 
         elif char == "X":
+            # X nekreslí větev. Bereme ho jako růstový bod, kam lze přidat listy.
             if leaves:
                 leaf_pair = create_leaf_pair(
                     position=state["pos"],
@@ -117,43 +160,8 @@ def build_lsystem_mesh(
                 )
                 meshes.append(leaf_pair)
 
-        elif char in {"A"}:
-            pass
-
     if not meshes:
         msg = "L-system nevygeneroval žádné segmenty."
         raise ValueError(msg)
 
     return trimesh.util.concatenate(meshes)
-
-
-def orthonormalize_turtle(state: dict) -> None:
-    heading = normalize(state["H"])
-
-    left = state["L"] - heading * float(np.dot(state["L"], heading))
-    left = normalize(left)
-
-    up = normalize(np.cross(heading, left))
-    left = normalize(np.cross(up, heading))
-
-    state["H"] = heading
-    state["L"] = left
-    state["U"] = up
-
-
-def rotate_turtle(
-    state: dict,
-    axis_key: str,
-    angle_rad: float,
-    rotated_keys: tuple[str, str],
-) -> None:
-    axis = state[axis_key]
-
-    for key in rotated_keys:
-        state[key] = rotate_vector(
-            state[key],
-            angle_rad,
-            axis.tolist(),
-        )
-
-    orthonormalize_turtle(state)

@@ -2,6 +2,8 @@ import trimesh
 
 Color = tuple[int, int, int, int]
 
+# Barvy držíme na jednom místě, aby šly měnit bez zásahu do generování meshů.
+# Hodnoty jsou rgba
 COLORS: dict[str, Color] = {
     "bark": (72, 34, 27, 255),
     "bark_dark": (45, 22, 18, 255),
@@ -19,5 +21,6 @@ COLORS: dict[str, Color] = {
 
 
 def apply_color(mesh: trimesh.Trimesh, color_name: str) -> trimesh.Trimesh:
+    """Přiřadí všem plochám meshe jednu barvu z paletky"""
     mesh.visual.face_colors = COLORS[color_name]
     return mesh

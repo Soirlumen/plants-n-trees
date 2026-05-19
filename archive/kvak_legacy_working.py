@@ -26,8 +26,8 @@ strom = [
     3,
     "X",
     {
-        "X": "F[+X][-X][&X][^X]FX",  # X = větev (rekurze)
-        "F": "FF",  # F = krok vpřed / segment
+        "X": "F[+X][-X][&X][^X]FX",  # X = větev 
+        "F": "FF",  # F = krok vpřed/segment
         "[": "[",
         "]": "]",
         "+": "+",
@@ -37,7 +37,6 @@ strom = [
     },
 ]
 
-# === L-system ===
 strom = [
     4,
     "X",
@@ -54,13 +53,12 @@ strom = [
 ]
 sentence = do_the_sentence(iterations=strom[0], axiom=strom[1], rules=strom[2])
 
-# === Parametry ===
 ANGLE = 27
 ANGLE_RAD = np.radians(ANGLE)
 SHRINK_LENGTH = 0.95
 SHRINK_RADIUS = 0.95
 
-# === Počáteční stav želvy ===
+
 state = {
     "pos": np.array([0.0, 0.0, 0.0]),
     "dir": np.array([0.0, 1.0, 0.0]),  # směrem nahoru
@@ -71,7 +69,7 @@ state = {
 stack = []
 meshes = []
 
-# === Interpretace L-systemu ===
+
 for char in sentence:
     if char == "F":
         start = state["pos"]
@@ -116,10 +114,9 @@ for char in sentence:
     elif char == "X":
         pass  # strukturální symbol
 
-# === Export / vizualizace ===
-# spojíme všechny meshe do jednoho – rychlejší pro 3D
+
 tree_mesh = trimesh.util.concatenate(meshes)
 scene = trimesh.Scene([tree_mesh])
 
-scene.show()  # pokud chceš vizualizaci, můžeš odkomentovat
+scene.show()  
 tree_mesh.export("tree.obj")
