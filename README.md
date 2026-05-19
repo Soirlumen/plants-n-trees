@@ -1,0 +1,16 @@
+generování stromečků
+
+parser žvejká příkazy, třeba tyto:
+
+
+## Strom
+py -m src.lsystem_visualizer.cli --preset dense-stochastic-tree --iterations 7 --angle 27 --shrink-length 0.955 --shrink-radius 0.94 --start-length 0.36 --start-radius 0.11 --leaf-length 0.4 --leaf-width 0.13 --leaf-fork-angle 35 --stochasticity 4.5 --seed 23 --leaf-color leaf_light --show
+
+## Jiný strom
+py -m src.lsystem_visualizer.cli --preset oak-tree --iterations 6 --angle 27 --shrink-length 0.955 --shrink-radius 0.88 --start-length 0.36 --start-radius 0.08 --leaf-length 0.4 --leaf-width 0.13 --leaf-fork-angle 35 --stochasticity 4 --seed 23 --leaf-color leaf_light --show
+
+## Keřík
+py -m src.lsystem_visualizer.cli --preset stochastic-bush --seed 7 --angle 32 --stochasticity 7 --iterations 5 --start-length 0.28 --start-radius 0.035 --shrink-length 0.86 --shrink-radius 0.78 --leaf-length 0.2 --leaf-width 0.10 --leaf-color leaf_dark --show
+
+## Trs "trávy" :D
+py -m src.lsystem_visualizer.cli --preset stochastic-grass --seed 12 --angle 10 --stochasticity 4 --start-length 0.22 --start-radius 0.012 --shrink-length 0.96 --shrink-radius 0.88 --no-leaves --output exports/ground_grass.obj --branch-color leaf_dark  --show
