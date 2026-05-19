@@ -6,3 +6,11 @@ __pycache__/
 exports/
 *.obj
 *.glb
+
+build/
+dist/
+*.egg-info/
+src/*.egg-info/
+
+# Virtual environments
+.venv/
