@@ -46,6 +46,7 @@ Presety: stromy, je možné doplnit další
 
 ### Spuštění
 pokud není nainstalovaný uv
+ze stránky: https://docs.astral.sh/uv/getting-started/installation/
 **Windows (PowerShell):**
 
 ```powershell
@@ -55,14 +56,15 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
-ve složce s pyproject.toml spustit
+restartovat commandline!
 
+a následně spustit uv
 ```
 uv sync
 uv pip install -e .
 ```
 
-a následně vyzkoušet předpřipravené stromy
+lze vyzkoušet předpřipravené stromy
 ```
 uv run nudny-strom
 uv run strom
@@ -71,7 +73,7 @@ uv run kerik
 uv run trava
 uv run dalsi-strom
 ```
- 
+
 anebo do parseru postupně napsat parametry, např.
 
 ```
