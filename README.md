@@ -47,13 +47,14 @@ Presety: stromy, je možné doplnit další
 ### Spuštění
 pokud není nainstalovaný uv
 **Windows (PowerShell):**
-    ```powershell
+
+```powershell
     irm [https://astral.sh/uv/install.ps1](https://astral.sh/uv/install.ps1) | iex
-    ```
+```
 * **Mac / Linux:**
-    ```bash
+```bash
     curl -LsSf [https://astral.sh/uv/install.sh](https://astral.sh/uv/install.sh) | sh
-    ```
+```
 ve složce s pyproject.toml spustit
 
 ```
