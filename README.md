@@ -49,7 +49,7 @@ pokud není nainstalovaný uv
 **Windows (PowerShell):**
 
 ```powershell
--ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 * **Mac / Linux:**
 ```bash
