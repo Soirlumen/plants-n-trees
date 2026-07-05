@@ -49,11 +49,11 @@ pokud není nainstalovaný uv
 **Windows (PowerShell):**
 
 ```powershell
-    irm [https://astral.sh/uv/install.ps1](https://astral.sh/uv/install.ps1) | iex
+-ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 * **Mac / Linux:**
 ```bash
-    curl -LsSf [https://astral.sh/uv/install.sh](https://astral.sh/uv/install.sh) | sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 ve složce s pyproject.toml spustit
 
