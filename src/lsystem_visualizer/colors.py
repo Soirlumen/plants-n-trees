@@ -3,7 +3,7 @@ import trimesh
 Color = tuple[int, int, int, int]
 
 # Barvy držíme na jednom místě, aby šly měnit bez zásahu do generování meshů.
-# Hodnoty jsou rgba
+# Hodnoty jsou RGBA.
 COLORS: dict[str, Color] = {
     "bark": (72, 34, 27, 255),
     "bark_dark": (45, 22, 18, 255),
@@ -17,6 +17,7 @@ COLORS: dict[str, Color] = {
     "leaf_sakura_dark": (196, 128, 154, 255),
     "leaf_neon_coral": (255, 76, 92, 255),
     "leaf_crimson_pink": (238, 38, 96, 255),
+    "leaf_orange":(249,135,10,255),
 }
 
 

@@ -4,7 +4,8 @@ import trimesh
 
 from .colors import COLORS
 from .presets import PRESETS
-from .renderer import build_lsystem_mesh
+from .renderer import LSystemRenderer
+from .config import LSystemConfig
 
 
 def parse_args() -> argparse.Namespace:
@@ -39,18 +40,16 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
-    # Preset dodá základní gramatiku, uživatel může přepsat hlavně:
-    # počet iterací, barvy, mdoel, stochastiku...
-    preset_iterations, axiom, rules = PRESETS[args.preset]
-    iterations = args.iterations if args.iterations is not None else preset_iterations
+    preset = PRESETS[args.preset]
+    iterations = args.iterations if args.iterations is not None else preset.iterations
 
-    tree_mesh = build_lsystem_mesh(
+    config = LSystemConfig(
         iterations=iterations,
         angle_degrees=args.angle,
         shrink_length=args.shrink_length,
         shrink_radius=args.shrink_radius,
-        axiom=axiom,
-        rules=rules,
+        axiom=preset.axiom,
+        rules=preset.rules,
         seed=args.seed,
         stochasticity=args.stochasticity,
         leaves=not args.no_leaves,
@@ -63,6 +62,8 @@ def main() -> None:
         branch_color=args.branch_color,
     )
 
+    tree_mesh = LSystemRenderer(config).build()
+
     tree_mesh.export(args.output)
     print(f"Exportováno do: {args.output}")
 
@@ -71,5 +72,27 @@ def main() -> None:
         scene.show()
 
 
+def _run_with_args(args):
+    import sys
+    sys.argv[1:] = args
+    main() 
+
+def nudny_strom():
+    _run_with_args(["--preset", "tree", "--iterations", "5", "--angle", "27", "--shrink-length", "0.955", "--shrink-radius", "0.94", "--start-length", "0.36", "--start-radius", "0.11", "--leaf-length", "0.4", "--leaf-width", "0.13", "--leaf-fork-angle", "35", "--stochasticity", "0", "--seed", "23", "--leaf-color", "leaf_light", "--show"])
+
+def strom():
+    _run_with_args(["--preset", "dense-stochastic-tree", "--iterations", "7", "--angle", "27", "--shrink-length", "0.955", "--shrink-radius", "0.94", "--start-length", "0.36", "--start-radius", "0.11", "--leaf-length", "0.4", "--leaf-width", "0.13", "--leaf-fork-angle", "35", "--stochasticity", "4.5", "--seed", "23", "--leaf-color", "leaf_light", "--show"])
+
+def jiny_strom():
+    _run_with_args(["--preset", "oak-tree", "--iterations", "6", "--angle", "27", "--shrink-length", "0.955", "--shrink-radius", "0.88", "--start-length", "0.36", "--start-radius", "0.08", "--leaf-length", "0.4", "--leaf-width", "0.13", "--leaf-fork-angle", "35", "--stochasticity", "4", "--seed", "22222", "--leaf-color", "leaf_light", "--show"])
+
+def kerik():
+    _run_with_args(["--preset", "stochastic-bush", "--seed", "7", "--angle", "32", "--stochasticity", "7", "--iterations", "5", "--start-length", "0.28", "--start-radius", "0.035", "--shrink-length", "0.86", "--shrink-radius", "0.78", "--leaf-length", "0.2", "--leaf-width", "0.10", "--leaf-color", "leaf_dark", "--show"])
+
+def trava():
+    _run_with_args(["--preset", "stochastic-grass", "--seed", "12", "--angle", "10", "--stochasticity", "4", "--start-length", "0.22", "--start-radius", "0.012", "--shrink-length", "0.96", "--shrink-radius", "0.88", "--no-leaves", "--output", "ground_grass.obj", "--branch-color", "leaf_dark", "--show"])
+
+def dalsi_strom():
+    _run_with_args(["--preset", "dense-stochastic-tree", "--iterations", "6", "--angle", "29", "--shrink-length", "0.94", "--shrink-radius", "0.90", "--start-length", "0.36", "--start-radius", "0.15", "--leaf-length", "0.4", "--leaf-width", "0.15", "--leaf-fork-angle", "35", "--stochasticity", "20", "--seed", "3854", "--leaf-color", "leaf_purple", "--show"])
 if __name__ == "__main__":
     main()

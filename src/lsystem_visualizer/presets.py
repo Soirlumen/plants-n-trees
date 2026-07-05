@@ -1,11 +1,11 @@
 # Každý preset má stejný tvar: počet iterací, axiom a pravidla přepisování.
 # Axiom je startovní řetězec; pravidla pak určují, jak se rostlina rozvětví.
+from .config import Preset
 
-
-TREE = (
-    5,
-    "X",
-    {
+TREE = Preset(
+    iterations=5,
+    axiom="X",
+    rules={
         "X": "F[/+X][\\-X][&X][^X]FX",
         "F": "FF",
     },
@@ -13,10 +13,10 @@ TREE = (
 
 # U stochastických presetů má jeden symbol víc možných náhrad,
 # číslo u každé možnosti říká, jak velkou váhu při náhodném výběru má.
-STOCHASTIC_TREE = (
-    5,
-    "X",
-    {
+STOCHASTIC_TREE = Preset(
+    iterations=5,
+    axiom="X",
+    rules={
         "X": [
             (0.50, "F[/+X][\\-X]FX"),
             (0.30, "F[/+X][^X]FX"),
@@ -29,10 +29,10 @@ STOCHASTIC_TREE = (
     },
 )
 
-OAK_TREE = (
-    5,
-    "FFFFX",
-    {
+OAK_TREE = Preset(
+    iterations=5,
+    axiom="FFFFX",
+    rules={
         "F": "F",
         "X": [
             (0.35, "F[/+X][\\-X]FX"),
@@ -43,10 +43,10 @@ OAK_TREE = (
     },
 )
 
-DENSE_STOCHASTIC_TREE = (
-    6,
-    "FX",
-    {
+DENSE_STOCHASTIC_TREE = Preset(
+    iterations=6,
+    axiom="FX",
+    rules={
         "X": [
             (0.28, "F[/+X][\\-X]F[&X]X"),
             (0.24, "F[&/+X][&\\-X]FX"),
@@ -61,10 +61,10 @@ DENSE_STOCHASTIC_TREE = (
     },
 )
 
-STOCHASTIC_GRASS = (
-    7,
-    "[X][+X][-X][&X][^X][/+X][\\-X][/&X][\\^X][+&X][-^X]",
-    {
+STOCHASTIC_GRASS = Preset(
+    iterations=7,
+    axiom="[X][+X][-X][&X][^X][/+X][\\-X][/&X][\\^X][+&X][-^X]",
+    rules={
         "F": "F",
         "X": [
             (0.26, "F+X"),
@@ -78,10 +78,10 @@ STOCHASTIC_GRASS = (
     },
 )
 
-STOCHASTIC_BUSH = (
-    5,
-    "[X][+X][-X][&X][^X][/+X][\\-X][+&X][-^X]",
-    {
+STOCHASTIC_BUSH = Preset(
+    iterations=5,
+    axiom="[X][+X][-X][&X][^X][/+X][\\-X][+&X][-^X]",
+    rules={
         "F": [
             (0.75, "F"),
             (0.25, "FF"),

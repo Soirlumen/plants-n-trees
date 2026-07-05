@@ -34,3 +34,12 @@ ignore = []
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[project.scripts]
+lsystem = "lsystem_visualizer.cli:main"
+nudny-strom = "lsystem_visualizer.cli:nudny_strom"
+strom = "lsystem_visualizer.cli:strom"
+jiny-strom = "lsystem_visualizer.cli:jiny_strom"
+kerik = "lsystem_visualizer.cli:kerik"
+trava = "lsystem_visualizer.cli:trava"
+dalsi-strom = "lsystem_visualizer.cli:dalsi_strom"

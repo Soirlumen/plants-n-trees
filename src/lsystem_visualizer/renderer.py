@@ -1,51 +1,149 @@
-import copy
-
 import numpy as np
 import trimesh
 
-from .colors import apply_color
-from .geometry import normalize, rotate_vector, sample_angle_rad
-from .grammar import Rule, expand_lsystem
-from .meshes import create_leaf_pair
+from .config import LSystemConfig
+from .grammar import LSystemGrammar, Rule
 from .presets import TREE
+from .turtle import TurtleState
+from .geometry import sample_angle_rad
+from .colors import apply_color
+from .meshes import create_leaf_pair
 
+class LSystemRenderer:
+    """Třída, která zajišťuje vykreslení L-systému do 3D meshe."""
+    def __init__(self,config:LSystemConfig):
+        self.config=config
+        self.rnd=np.random.default_rng(config.seed)
+        self.meshes:list[trimesh.Trimesh]=[]
+        self.stack:list[TurtleState]=[]
+        
+    def build(self)->trimesh.Trimesh:
+        """Převede větu na 3D objekt"""
+        rules=dict(TREE.rules) if self.config.rules is None else self.config.rules
+        grammar=LSystemGrammar(
+            axiom=self.config.axiom,
+            rules=rules,
+        ) 
+        sentence=grammar.expand(
+            iterations=self.config.iterations,
+            rng=self.rnd,
+        )
+        state=TurtleState.initial(
+            start_length=self.config.start_length,
+            start_radius=self.config.start_radius,
+        )
+        
+        for char in sentence:
+            state=self._handle_symbol(char,state)
+        if not self.meshes:
+            raise ValueError("L-system nic nevygeneroval..")
+        return trimesh.util.concatenate(self.meshes)
+    def _handle_symbol(self,char:str,state:TurtleState)->TurtleState:
+        """Zpracuje jeden symbol L-systému a vrátí nový stav želvy."""
+        if char == "F":
+            self._draw_branch(state)
 
-def orthonormalize_turtle(state: dict) -> None:
-    """Srovná lokální osy želvy tak, aby zůstaly kolmé a jednotkové."""
-    heading = normalize(state["H"])
+        elif char == "+":
+            self._rotate(state, "U", 1, ("H", "L"))
 
-    # Po hodně rotacích se kvůli zaokrouhlování může báze lehce rozhodit.
-    # Tady left očistíme o složku ve směru headingu a znovu dopočítáme up.
-    left = state["L"] - heading * float(np.dot(state["L"], heading))
-    left = normalize(left)
+        elif char == "-":
+            self._rotate(state, "U", -1, ("H", "L"))
 
-    up = normalize(np.cross(heading, left))
-    left = normalize(np.cross(up, heading))
+        elif char == "&":
+            self._rotate(state, "L", 1, ("H", "U"))
 
-    state["H"] = heading
-    state["L"] = left
-    state["U"] = up
+        elif char == "^":
+            self._rotate(state, "L", -1, ("H", "U"))
 
+        elif char == "\\":
+            self._rotate(state, "H", 1, ("L", "U"))
 
-def rotate_turtle(
-    state: dict,
-    axis_key: str,
-    angle_rad: float,
-    rotated_keys: tuple[str, str],
-) -> None:
-    """Otočí vybrané osy želvy kolem jedné z jejích aktuálních os"""
-    axis = state[axis_key]
+        elif char == "/":
+            self._rotate(state, "H", -1, ("L", "U"))
 
-    for key in rotated_keys:
-        state[key] = rotate_vector(
-            state[key],
-            angle_rad,
-            axis.tolist(),
+        elif char == "|":
+            state.rotate("U", np.pi, ("H", "L"))
+
+        elif char == "[":
+            self.stack.append(state.copy())
+
+        elif char == "]":
+            if not self.stack:
+                raise ValueError("L-system obsahuje ']', ale stack je prázdný.")
+            state = self.stack.pop()
+
+        elif char == "X":
+            self._draw_leaf_pair(state)
+
+        return state
+    
+    def _draw_branch(self, state: TurtleState) -> None:
+        start = state.pos
+        end = start + state.H * state.length
+        radius = state.radius
+
+        cylinder = trimesh.creation.cylinder(
+            radius=radius,
+            segment=[start, end],
+            sections=self.config.sections,
         )
 
-    orthonormalize_turtle(state)
+        cylinder = apply_color(cylinder, self.config.branch_color)
+        self.meshes.append(cylinder)
 
+        state.pos = end
+        state.length *= self.config.shrink_length
+        state.radius *= self.config.shrink_radius
+    def _draw_leaf_pair(self,state:TurtleState):
+        """Vykreslí pár listů na konci větve."""
+        if not self.config.leaves:
+            return
+        leaf_pair=create_leaf_pair(
+            position=state.pos,
+            branch_direction=state.H,
+            length=self.config.leaf_length,
+            width=self.config.leaf_width,
+            fork_angle_degrees=self.config.leaf_fork_angle,
+            color_name=self.config.leaf_color,
+        )
+        self.meshes.append(leaf_pair)
+        
+    def _rotate(
+            self,
+            state: TurtleState,
+            axis_name: str,
+            sign: int,
+            rotated_axes: tuple[str, str],
+        ) -> None:
+        angle_rad = sample_angle_rad(
+                self.config.angle_degrees,
+                self.config.stochasticity,
+                self.rnd,
+            )
 
+        state.rotate(axis_name, sign * angle_rad, rotated_axes)
+
+def build_lsystem_mesh_from_config(config: LSystemConfig) -> trimesh.Trimesh:
+    """Převede L-system řetězec na jeden výsledný 3D mesh podle konfigurace."""
+    return build_lsystem_mesh(
+        iterations=config.iterations,
+        angle_degrees=config.angle_degrees,
+        shrink_length=config.shrink_length,
+        shrink_radius=config.shrink_radius,
+        axiom=config.axiom,
+        rules=config.rules,
+        start_length=config.start_length,
+        start_radius=config.start_radius,
+        sections=config.sections,
+        seed=config.seed,
+        stochasticity=config.stochasticity,
+        branch_color=config.branch_color,
+        leaves=config.leaves,
+        leaf_length=config.leaf_length,
+        leaf_width=config.leaf_width,
+        leaf_fork_angle=config.leaf_fork_angle,
+        leaf_color=config.leaf_color
+    )
 def build_lsystem_mesh(
     iterations: int = 4,
     angle_degrees: float = 27.0,
@@ -65,103 +163,24 @@ def build_lsystem_mesh(
     leaf_fork_angle: float = 40.0,
     leaf_color: str = "leaf",
 ) -> trimesh.Trimesh:
-    """Převede L-system řetězec na jeden výsledný 3D mesh."""
-    rng = np.random.default_rng(seed)
-
-    # Když volající nedodá vlastní pravidla, použije se jednoduchý výchozí strom
-    active_rules: dict[str, Rule] = dict(TREE[2]) if rules is None else rules
-
-    sentence = expand_lsystem(
+    config = LSystemConfig(
         iterations=iterations,
+        angle_degrees=angle_degrees,
+        shrink_length=shrink_length,
+        shrink_radius=shrink_radius,
         axiom=axiom,
-        rules=active_rules,
-        rng=rng,
+        rules=rules,
+        start_length=start_length,
+        start_radius=start_radius,
+        sections=sections,
+        seed=seed,
+        stochasticity=stochasticity,
+        branch_color=branch_color,
+        leaves=leaves,
+        leaf_length=leaf_length,
+        leaf_width=leaf_width,
+        leaf_fork_angle=leaf_fork_angle,
+        leaf_color=leaf_color,
     )
 
-    # Turtle stav: pozice, tři lokální osy a aktuální rozměry větve.
-    # H = heading/směr dopředu, L = levá osa, U = osa nahoru.
-    state = {
-        "pos": np.array([0.0, 0.0, 0.0]),
-        "H": np.array([0.0, 1.0, 0.0]),
-        "L": np.array([-1.0, 0.0, 0.0]),
-        "U": np.array([0.0, 0.0, 1.0]),
-        "length": start_length,
-        "radius": start_radius,
-    }
-
-    stack = []
-    meshes = []
-
-    for char in sentence:
-        if char == "F":
-            start = state["pos"]
-            end = start + state["H"] * state["length"]
-
-            # Každé F vytvoří jeden válcový segment ve směru aktuální želvy.
-            cylinder = trimesh.creation.cylinder(
-                radius=state["radius"],
-                segment=[start, end],
-                sections=sections,
-            )
-            cylinder = apply_color(cylinder, branch_color)
-
-            meshes.append(cylinder)
-            state["pos"] = end
-            state["length"] *= shrink_length
-            state["radius"] *= shrink_radius
-
-        elif char == "+":
-            angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
-            rotate_turtle(state, "U", angle_rad, ("H", "L"))
-
-        elif char == "-":
-            angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
-            rotate_turtle(state, "U", -angle_rad, ("H", "L"))
-
-        elif char == "&":
-            angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
-            rotate_turtle(state, "L", angle_rad, ("H", "U"))
-
-        elif char == "^":
-            angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
-            rotate_turtle(state, "L", -angle_rad, ("H", "U"))
-
-        elif char == "\\":
-            angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
-            rotate_turtle(state, "H", angle_rad, ("L", "U"))
-
-        elif char == "/":
-            angle_rad = sample_angle_rad(angle_degrees, stochasticity, rng)
-            rotate_turtle(state, "H", -angle_rad, ("L", "U"))
-
-        elif char == "|":
-            rotate_turtle(state, "U", np.pi, ("H", "L"))
-
-        elif char == "[":
-            # Větvení: uložíme celý stav, aby se po dokončení větve dalo vrátit zpet.
-            stack.append(copy.deepcopy(state))
-
-        elif char == "]":
-            if not stack:
-                msg = "L-system obsahuje ']', ale stack je prázdný."
-                raise ValueError(msg)
-            state = stack.pop()
-
-        elif char == "X":
-            # X nekreslí větev. Bereme ho jako růstový bod, kam lze přidat listy.
-            if leaves:
-                leaf_pair = create_leaf_pair(
-                    position=state["pos"],
-                    branch_direction=state["H"],
-                    length=leaf_length,
-                    width=leaf_width,
-                    fork_angle_degrees=leaf_fork_angle,
-                    color_name=leaf_color,
-                )
-                meshes.append(leaf_pair)
-
-    if not meshes:
-        msg = "L-system nevygeneroval žádné segmenty."
-        raise ValueError(msg)
-
-    return trimesh.util.concatenate(meshes)
+    return LSystemRenderer(config).build()
