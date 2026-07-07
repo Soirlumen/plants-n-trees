@@ -99,3 +99,11 @@ uv run py -m src.lsystem_visualizer.cli --preset dense-stochastic-tree --iterati
 | `--start-length`        | `0.9`               | Počáteční délka prvního (kmenového) segmentu.                                       |
 | `--start-radius`        | `0.1`               | Počáteční poloměr (tloušťka) kmene na startu.                                       |
 | `--branch-color`        | `"bark"`            | Barva větví a kmene (omezeno na klíče v registru `COLORS`).                         |
+
+### Zdroje
+- PRUSINKIEWICZ, Przemyslaw a LINDENMAYER, Aristid. The Algorithmic Beauty of Plants. Elektronické vydání. Springer-Verlag, 2006. ISBN 978-0-387-94676-4.
+- MATEMATICKÉ MODELOVÁNÍ POMOCÍ L-SYSTÉMŮ. Bakalářská práce. Brno: Vysoké učení technické v Brně, Fakulta strojního inženýrství, Ústav matematiky, 2010.
+- L-systémy pro interaktívni modelování rostlin. Diplomová. Brno: Masarykova univerzita, Fakulta informatiky, 2013.
+- https://chatgpt.com/share/6a493411-0f10-83ed-96c0-094c911b4cc9
+- https://share.gemini.google/W4JdJNtp8DE8
+- L-system. Online. In: Wikipedia: the free encyclopedia. San Francisco (CA): Wikimedia Foundation, 2001-2026. Dostupné z: https://en.wikipedia.org/wiki/L-system. [cit. 2026-07-07].
