@@ -78,22 +78,14 @@ class LSystemRenderer:
         return state
     
     def _draw_branch(self, state: TurtleState) -> None:
-        start = state.pos
-        end = start + state.H * state.length
-        radius = state.radius
-
+        start, end = state.forward(self.config.shrink_length, self.config.shrink_radius)
         cylinder = trimesh.creation.cylinder(
-            radius=radius,
-            segment=[start, end],
-            sections=self.config.sections,
-        )
-
+        radius=state.radius,
+        segment=[start, end],
+        sections=self.config.sections,
+    )
         cylinder = apply_color(cylinder, self.config.branch_color)
         self.meshes.append(cylinder)
-
-        state.pos = end
-        state.length *= self.config.shrink_length
-        state.radius *= self.config.shrink_radius
     def _draw_leaf_pair(self,state:TurtleState):
         """Vykreslí pár listů na konci větve."""
         if not self.config.leaves:
