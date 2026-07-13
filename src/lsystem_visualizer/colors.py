@@ -17,7 +17,7 @@ COLORS: dict[str, Color] = {
     "leaf_sakura_dark": (196, 128, 154, 255),
     "leaf_neon_coral": (255, 76, 92, 255),
     "leaf_crimson_pink": (238, 38, 96, 255),
-    "leaf_orange":(249,135,10,255),
+    "leaf_orange": (249, 135, 10, 255),
 }
 
 

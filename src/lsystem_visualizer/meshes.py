@@ -2,7 +2,7 @@ import numpy as np
 import trimesh
 
 from .colors import apply_color
-from .geometry import normalize, rotate_vector
+from .geometry import get_perpendicular_basis, normalize, rotate_vector
 
 
 def create_diamond_leaf(
@@ -69,9 +69,7 @@ def create_leaf_pair(
     helper = np.array([0.0, 0.0, 1.0])
     if abs(np.dot(branch_direction, helper)) > 0.95:
         helper = np.array([1.0, 0.0, 0.0])
-    up = normalize(
-        np.cross(normalize(np.cross(branch_direction, helper)), branch_direction)
-    )
+    _, up = get_perpendicular_basis(branch_direction)
 
     fork_angle_rad = np.radians(fork_angle_degrees)
 

@@ -1,44 +1,47 @@
 import numpy as np
 import trimesh
 
+from .colors import apply_color
 from .config import LSystemConfig
+from .geometry import sample_angle_rad
 from .grammar import LSystemGrammar, Rule
+from .meshes import create_leaf_pair
 from .presets import TREE
 from .turtle import TurtleState
-from .geometry import sample_angle_rad
-from .colors import apply_color
-from .meshes import create_leaf_pair
+
 
 class LSystemRenderer:
     """Třída, která zajišťuje vykreslení L-systému do 3D meshe."""
-    def __init__(self,config:LSystemConfig):
-        self.config=config
-        self.rnd=np.random.default_rng(config.seed)
-        self.meshes:list[trimesh.Trimesh]=[]
-        self.stack:list[TurtleState]=[]
-        
-    def build(self)->trimesh.Trimesh:
+
+    def __init__(self, config: LSystemConfig):
+        self.config = config
+        self.rnd = np.random.default_rng(config.seed)
+        self.meshes: list[trimesh.Trimesh] = []
+        self.stack: list[TurtleState] = []
+
+    def build(self) -> trimesh.Trimesh:
         """Převede větu na 3D objekt"""
-        rules=dict(TREE.rules) if self.config.rules is None else self.config.rules
-        grammar=LSystemGrammar(
+        rules = dict(TREE.rules) if self.config.rules is None else self.config.rules
+        grammar = LSystemGrammar(
             axiom=self.config.axiom,
             rules=rules,
-        ) 
-        sentence=grammar.expand(
+        )
+        sentence = grammar.expand(
             iterations=self.config.iterations,
             rng=self.rnd,
         )
-        state=TurtleState.initial(
+        state = TurtleState.initial(
             start_length=self.config.start_length,
             start_radius=self.config.start_radius,
         )
-        
+
         for char in sentence:
-            state=self._handle_symbol(char,state)
+            state = self._handle_symbol(char, state)
         if not self.meshes:
             raise ValueError("L-system nic nevygeneroval..")
         return trimesh.util.concatenate(self.meshes)
-    def _handle_symbol(self,char:str,state:TurtleState)->TurtleState:
+
+    def _handle_symbol(self, char: str, state: TurtleState) -> TurtleState:
         """Zpracuje jeden symbol L-systému a vrátí nový stav želvy."""
         if char == "F":
             self._draw_branch(state)
@@ -76,21 +79,22 @@ class LSystemRenderer:
             self._draw_leaf_pair(state)
 
         return state
-    
+
     def _draw_branch(self, state: TurtleState) -> None:
         start, end = state.forward(self.config.shrink_length, self.config.shrink_radius)
         cylinder = trimesh.creation.cylinder(
-        radius=state.radius,
-        segment=[start, end],
-        sections=self.config.sections,
-    )
+            radius=state.radius,
+            segment=[start, end],
+            sections=self.config.sections,
+        )
         cylinder = apply_color(cylinder, self.config.branch_color)
         self.meshes.append(cylinder)
-    def _draw_leaf_pair(self,state:TurtleState):
+
+    def _draw_leaf_pair(self, state: TurtleState):
         """Vykreslí pár listů na konci větve."""
         if not self.config.leaves:
             return
-        leaf_pair=create_leaf_pair(
+        leaf_pair = create_leaf_pair(
             position=state.pos,
             branch_direction=state.H,
             length=self.config.leaf_length,
@@ -99,21 +103,22 @@ class LSystemRenderer:
             color_name=self.config.leaf_color,
         )
         self.meshes.append(leaf_pair)
-        
+
     def _rotate(
-            self,
-            state: TurtleState,
-            axis_name: str,
-            sign: int,
-            rotated_axes: tuple[str, str],
-        ) -> None:
+        self,
+        state: TurtleState,
+        axis_name: str,
+        sign: int,
+        rotated_axes: tuple[str, str],
+    ) -> None:
         angle_rad = sample_angle_rad(
-                self.config.angle_degrees,
-                self.config.stochasticity,
-                self.rnd,
-            )
+            self.config.angle_degrees,
+            self.config.stochasticity,
+            self.rnd,
+        )
 
         state.rotate(axis_name, sign * angle_rad, rotated_axes)
+
 
 def build_lsystem_mesh_from_config(config: LSystemConfig) -> trimesh.Trimesh:
     """Převede L-system řetězec na jeden výsledný 3D mesh podle konfigurace."""
@@ -134,8 +139,10 @@ def build_lsystem_mesh_from_config(config: LSystemConfig) -> trimesh.Trimesh:
         leaf_length=config.leaf_length,
         leaf_width=config.leaf_width,
         leaf_fork_angle=config.leaf_fork_angle,
-        leaf_color=config.leaf_color
+        leaf_color=config.leaf_color,
     )
+
+
 def build_lsystem_mesh(
     iterations: int = 4,
     angle_degrees: float = 27.0,
