@@ -1,8 +1,3 @@
-Miroslava Novotná, AIPV PGR2 2026
-zadání: generování a vizualizace 3D L-systémů z příkazové řádky
-výstup: .obj a vizualizace
-Presety: stromy, je možné doplnit další
-## Řešení:
 ### L-systém
 - abeceda (definované symboly), axiom (počáteční věta), pravidla (na co se znak přepíše)
 - opakovaná aplikace pravidel po zadaný počet iterací
